@@ -1,0 +1,23 @@
+from scipy.cluster.hierarchy import linkage, fcluster, dendrogram
+
+# Perform hierarchical clustering
+Z = linkage(X, 'ward')
+
+# Plot the dendrogram (Optional)
+plt.figure(figsize=(12, 6))
+dendrogram(Z, truncate_mode='lastp', p=20, leaf_rotation=45., leaf_font_size=10., show_contracted=True)
+plt.title('Hierarchical Clustering Dendrogram')
+plt.xlabel('Cluster Size')
+plt.ylabel('Distance')
+plt.axhline(y=150, c='k', ls='--', lw=0.5)
+plt.show()
+
+# Cut the tree to form 3 clusters
+df['Hierarchical_Cluster'] = fcluster(Z, t=50, criterion='distance')
+print(f"{df['Hierarchical_Cluster'].unique()} clusters")
+
+# Generate cluster summary for all variables
+cluster_summary = df[numerical_cols + ['Hierarchical_Cluster']].groupby('Hierarchical_Cluster').agg(['mean']).reset_index()
+
+# Save the cluster summary to a CSV file (Optional)
+cluster_summary.to_csv(f'data/cluster_summary_{len(df["Hierarchical_Cluster"].unique())}.csv', index=False)
